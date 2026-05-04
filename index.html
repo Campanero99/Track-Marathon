@@ -67,6 +67,7 @@
   .badge-red{background:var(--red-bg);color:var(--red)}
   .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
   .stat-box{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow)}
+  #toast-unsaved{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#f59e0b;color:#fff;font-weight:700;padding:12px 24px;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,0.25);z-index:9999;display:none;align-items:center;gap:10px;font-size:.95rem;white-space:nowrap;pointer-events:none;animation:toastIn .25s ease}
   .stat-val{font-size:1.3rem;font-weight:800;color:var(--primary);font-variant-numeric:tabular-nums}
   .stat-label{font-size:.7rem;color:var(--text2);font-weight:600;margin-top:4px;text-transform:uppercase}
   .km-table{width:100%;border-collapse:collapse}
@@ -134,6 +135,10 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
+@keyframes toastIn {
+  from { opacity:0; transform:translateX(-50%) translateY(12px); }
+  to   { opacity:1; transform:translateX(-50%) translateY(0); }
+}
 .parpadeo-activo {
   animation: parpadeo 0.9s ease-in-out 5; /* parpadea 3 veces */
 }
@@ -171,7 +176,6 @@
   <div class="card"><div class="card-title">⏱ <span id="ficha-tiempo">Zielzeit und Start</span></div><label id="ficha-marca-label">Zielzeit</label><div class="marca-inputs"><div><input type="number" id="f-marca-h" placeholder="0" min="0" max="9" inputmode="numeric" oninput="calcularRitmo()"><div class="marca-lbl">h</div></div><div class="marca-sep">:</div><div><input type="number" id="f-marca-m" placeholder="00" min="0" max="59" inputmode="numeric" oninput="calcularRitmo()"><div class="marca-lbl">min</div></div><div class="marca-sep">:</div><div><input type="number" id="f-marca-s" placeholder="00" min="0" max="59" inputmode="numeric" oninput="calcularRitmo()"><div class="marca-lbl">s</div></div></div><div style="margin-top:12px"><label id="ficha-ritmo-label">Berechnetes Tempo/km</label><input type="text" id="f-ritmo" readonly placeholder="—"></div><div class="row2"><div><label id="ficha-oficial-label">Offizielle Startzeit</label><input type="time" id="f-salida-oficial" step="1"></div><div><label id="ficha-personal-label">Persönliche Startzeit (Chip)</label><input type="time" id="f-salida-personal" step="1" oninput="syncSalida()"></div></div><div id="diferencia-salida" class="alert alert-info" style="display:none"></div></div>
   <div class="card"><div class="card-title">📍 <span id="ficha-puntos">Treffpunkte</span></div><p class="text2" style="margin-bottom:12px" id="ficha-puntos-desc">KM und Straßenname, wo du den Läufer siehst. Wird automatisch sortiert.</p><div id="puntos-container"></div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-outline btn-sm" onclick="addPunto()" id="ficha-add">+ Punkt hinzufügen</button><button class="btn btn-danger btn-sm" onclick="limpiarPuntos()" id="ficha-delete">✕ Alle löschen</button></div></div>
   <div style="display:flex;gap:10px"><button class="btn btn-primary" style="flex:1" onclick="guardarCorreder()" id="ficha-save">💾 Läufer speichern</button><button class="btn btn-outline" onclick="showPage('lista')" id="ficha-cancel">Abbrechen</button></div>
-  <div id="ficha-unsaved" class="alert-landscape" style="display:none;margin-top:12px"><span style="font-size:1.2rem">💾</span><span id="ficha-unsaved-msg"></span></div>
 </div>
 
 <div id="page-seguimiento" class="page">
@@ -188,7 +192,7 @@
   <h2 style="margin-bottom:4px" id="pron-titulo">Zielprognose</h2><p class="text2" style="margin-bottom:20px" id="pron-desc">Aktuellen KM und Laufzeit eingeben, um die Zielankunft zu berechnen</p>
   <div class="card"><div class="card-title" id="pron-runner-title">👤 Läufer (optional)</div><select id="prono-corredor" onchange="autoRellenarProno()"><option value="">— Keinen Läufer ausgewählt —</option></select></div>
   <div class="card"><div class="card-title" id="pron-data-title">📊 Durchgangsdaten</div><div class="row2"><div><label id="pron-km-label">Aktueller Kilometer</label><input type="number" id="prono-km" min="0.1" max="50" step="0.1" oninput="calcProno()"></div><div><label id="pron-dist-label">Gesamtdistanz (km)</label><input type="number" id="prono-dist" value="42.195" step="0.001" oninput="calcProno()"></div></div><div style="margin-top:10px"><label style="display:block;margin-bottom:6px" id="pron-time-label">Laufzeit (h:mm:ss)</label><div style="display:flex;align-items:center;gap:6px"><input type="number" id="prono-th" min="0" max="9" placeholder="1" inputmode="numeric" oninput="calcProno()" style="width:52px;text-align:center;padding:8px 4px"><span style="font-size:1.3rem;font-weight:800;opacity:.7">:</span><input type="number" id="prono-tm2" min="0" max="59" placeholder="45" inputmode="numeric" oninput="calcProno()" style="width:52px;text-align:center;padding:8px 4px"><span style="font-size:1.3rem;font-weight:800;opacity:.7">:</span><input type="number" id="prono-ts" min="0" max="59" placeholder="30" inputmode="numeric" oninput="calcProno()" style="width:52px;text-align:center;padding:8px 4px"></div></div></div>
-  <div id="prono-res" style="display:none"><div class="prono-result"><div style="font-size:.85rem;opacity:.85;margin-bottom:8px" id="pron-estimated">⏱ Geschätzte Gesamtzeit</div><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;font-variant-numeric:tabular-nums"><div style="text-align:center"><div id="prono-tm-h" style="font-size:3rem;font-weight:800;line-height:1">—</div><div style="font-size:.75rem;opacity:.75" class="pron-h-label">Std</div></div><span style="font-size:3rem;font-weight:800;line-height:1;padding:0 2px;opacity:.6">:</span><div style="text-align:center"><div id="prono-tm-m" style="font-size:3rem;font-weight:800;line-height:1">—</div><div style="font-size:.75rem;opacity:.75" class="pron-m-label">Min</div></div><span style="font-size:3rem;font-weight:800;line-height:1;padding:0 2px;opacity:.6">:</span><div style="text-align:center"><div id="prono-tm-s" style="font-size:3rem;font-weight:800;line-height:1">—</div><div style="font-size:.75rem;opacity:.75" class="pron-s-label">Sek</div></div></div><div class="sep" style="background:rgba(255,255,255,.25)"></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center"><div><div style="font-weight:800;font-size:1.1rem" id="prono-rm">—</div><div style="font-size:.75rem;opacity:.8" id="pron-avg">Durchschnittstempo/km</div></div><div><div style="font-weight:800;font-size:1.1rem" id="prono-kr">—</div><div style="font-size:.75rem;opacity:.8" id="pron-remain">Verbleibende KM</div></div><div><div style="font-weight:800;font-size:1.1rem" id="prono-hl">—</div><div style="font-size:.75rem;opacity:.8" id="pron-arrival">Ankunftszeit</div></div></div></div><div id="prono-vs" class="card" style="margin-top:12px;text-align:center;display:none"><div class="card-title" id="pron-compare">Vergleich mit Zielzeit</div><div id="prono-vs-t" style="font-size:1rem;font-weight:700"></div></div></div>
+  <div id="prono-res" style="display:none"><div class="prono-result"><div style="font-size:.85rem;opacity:.85;margin-bottom:8px" id="pron-estimated">⏱ Geschätzte Gesamtzeit</div><div style="display:flex;align-items:baseline;justify-content:center;gap:4px;font-variant-numeric:tabular-nums"><div style="text-align:center"><div id="prono-tm-h" style="font-size:3rem;font-weight:800;line-height:1">—</div><div style="font-size:.75rem;opacity:.75" class="pron-h-label">Std</div></div><span style="font-size:3rem;font-weight:800;line-height:1;padding:0 2px;opacity:.6">:</span><div style="text-align:center"><div id="prono-tm-m" style="font-size:3rem;font-weight:800;line-height:1">—</div><div style="font-size:.75rem;opacity:.75" class="pron-m-label">Min</div></div><span style="font-size:3rem;font-weight:800;line-height:1;padding:0 2px;opacity:.6">:</span><div style="text-align:center"><div id="prono-tm-s" style="font-size:3rem;font-weight:800;line-height:1">—</div><div style="font-size:.75rem;opacity:.75" class="pron-s-label">Sek</div></div></div><div class="sep" style="background:rgba(255,255,255,.25)"></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;margin-top:4px"><div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px 6px"><div style="font-weight:800;font-size:1.1rem" id="prono-rm">—</div><div style="font-size:.75rem;opacity:.8" id="pron-avg">⌀/km</div></div><div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px 6px"><div style="font-weight:800;font-size:1.1rem" id="prono-kr">—</div><div style="font-size:.75rem;opacity:.8" id="pron-remain">KM ←</div></div><div style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px 6px"><div style="font-weight:800;font-size:1.1rem" id="prono-hl">—</div><div style="font-size:.75rem;opacity:.8" id="pron-arrival">🏁</div></div></div></div><div id="prono-vs" class="card" style="margin-top:12px;text-align:center;display:none"><div class="card-title" id="pron-compare">Vergleich mit Zielzeit</div><div id="prono-vs-t" style="font-size:1rem;font-weight:700"></div></div></div>
 </div>
 
 <div id="page-mapa" class="page">
@@ -243,7 +247,7 @@ function actualizarIdiomaInterfaz(){
   if(document.getElementById('ficha-delete'))document.getElementById('ficha-delete').textContent=t('ficha.deleteAll');
   if(document.getElementById('ficha-save'))document.getElementById('ficha-save').textContent=t('ficha.save');
   if(document.getElementById('ficha-cancel'))document.getElementById('ficha-cancel').textContent=t('ficha.cancel');
-  if(document.getElementById('ficha-unsaved-msg')&&hayaCambios)document.getElementById('ficha-unsaved-msg').textContent=t('ficha.unsaved');
+  if(document.getElementById('toast-unsaved-msg')&&hayaCambios)document.getElementById('toast-unsaved-msg').textContent=t('ficha.unsaved');
   if(document.getElementById('mapa-titulo'))document.getElementById('mapa-titulo').textContent='🗺 '+t('mapa.title');
   if(document.getElementById('mapa-subtitulo'))document.getElementById('mapa-subtitulo').textContent=t('mapa.subtitle');
   if(document.getElementById('map-select-text'))document.getElementById('map-select-text').textContent=t('mapa.selectCity');
@@ -262,9 +266,6 @@ function actualizarIdiomaInterfaz(){
   if(document.getElementById('pron-dist-label'))document.getElementById('pron-dist-label').textContent=t('prognosis.totalDist');
   if(document.getElementById('pron-time-label'))document.getElementById('pron-time-label').textContent=t('prognosis.raceTime');
   if(document.getElementById('pron-estimated'))document.getElementById('pron-estimated').textContent='⏱ '+t('prognosis.estimated');
-  if(document.getElementById('pron-avg'))document.getElementById('pron-avg').textContent=t('prognosis.avgPace');
-  if(document.getElementById('pron-remain'))document.getElementById('pron-remain').textContent=t('prognosis.remainingKm');
-  if(document.getElementById('pron-arrival'))document.getElementById('pron-arrival').textContent=t('prognosis.arrivalTime');
   if(document.getElementById('pron-compare'))document.getElementById('pron-compare').textContent=t('prognosis.compare');
   var hLabels=document.querySelectorAll('.pron-h-label');
   var mLabels=document.querySelectorAll('.pron-m-label');
@@ -463,8 +464,8 @@ function rPS(){const s=document.getElementById('prono-corredor');s.innerHTML='<o
 
 let notificacionesActivadas=false;
 let hayaCambios=false;
-function marcarCambio(){hayaCambios=true;var b=document.getElementById('ficha-unsaved');var m=document.getElementById('ficha-unsaved-msg');if(b&&m){m.textContent=t('ficha.unsaved');b.style.display='flex';}}
-function ocultarAviso(){hayaCambios=false;var b=document.getElementById('ficha-unsaved');if(b)b.style.display='none';}
+function marcarCambio(){hayaCambios=true;var b=document.getElementById('toast-unsaved');var m=document.getElementById('toast-unsaved-msg');if(b&&m){m.textContent=t('ficha.unsaved');b.style.display='flex';}}
+function ocultarAviso(){hayaCambios=false;var b=document.getElementById('toast-unsaved');if(b)b.style.display='none';}
 function activarDetectorCambios(){['f-nombre','f-dorsal','f-carrera','f-marca-h','f-marca-m','f-marca-s','f-salida-oficial','f-salida-personal'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('input',marcarCambio);});var sexo=document.getElementById('f-sexo');if(sexo)sexo.addEventListener('change',marcarCambio);}
 function activarNotificaciones(){var esIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);var esSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);var instalada=window.navigator.standalone===true;if(esIOS&&esSafari&&!instalada){alert(t('seguimiento.notifIOS'));return;}if(!('Notification'in window)){alert(t('seguimiento.notifNotSupported'));return;}if(Notification.permission==='granted'){notificacionesActivadas=true;}else if(Notification.permission==='denied'){alert(t('seguimiento.notifBlocked'));}else{Notification.requestPermission().then(function(permission){if(permission==='granted'){notificacionesActivadas=true;actualizarBotonNotificaciones();}else{alert(t('seguimiento.notifDenied'));}});}}
 function actualizarBotonNotificaciones(){
@@ -490,5 +491,6 @@ function iniciarNotificaciones(){activarNotificaciones();if(intervaloNotificacio
 
 (function(){idiomaActual=localStorage.getItem('marathon_lang')||'de';setTimeout(actualizarIdiomaInterfaz,100);rL();})();
 </script>
+<div id="toast-unsaved"><span>💾</span><span id="toast-unsaved-msg"></span></div>
 </body>
 </html>
