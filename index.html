@@ -86,7 +86,7 @@
   .marca-lbl{font-size:.7rem;color:var(--text2);text-align:center;margin-top:2px}
   .sep{height:1px;background:var(--border);margin:16px 0}
   /* Modal pulsera */
-  #modal-pulsera{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:none;align-items:center;justify-content:center}
+  #modal-pulsera{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px}
   #modal-pulsera.open{display:flex}
   .pulsera-wrap{background:#fff;border-radius:20px;padding:24px 20px;max-width:320px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.3);position:relative}
   .pulsera-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text2)}
@@ -208,6 +208,14 @@
   <div class="mapa-header"><h2 id="mapa-titulo">🗺 Strecke</h2><p class="text2" id="mapa-subtitulo">Wähle eine Stadt, um die Strecke zu sehen</p></div>
   <div class="mapa-city-selector" id="mapa-city-selector"></div>
   <div id="map-container"><div id="leaflet-map"></div><div class="map-legend" id="map-legend" style="display:none"><div class="map-legend-title" id="map-legend-title">Legende</div><div class="map-legend-item"><div class="legend-dot" style="background:#1a6fc4;width:20px;height:4px;border-radius:2px"></div> <span id="map-legend-route">Strecke</span></div><div class="map-legend-item"><div class="legend-dot" style="background:#1a9e5c"></div> <span id="map-legend-start">Start / Ziel</span></div><div class="map-legend-item"><div class="legend-dot" style="background:#1a6fc4;border:2px solid white;box-shadow:0 0 0 1px #1a6fc4"></div> <span id="map-legend-km">KM-Marker</span></div><div class="map-legend-item"><div class="legend-dot" style="background:#e8a020;border:2px solid white"></div> <span id="map-legend-points">Deine Punkte</span></div></div><div class="map-no-city" id="map-no-city"><div class="map-no-city-icon">🗺</div><div id="map-select-text">Wähle oben eine Stadt aus, um die Strecke zu sehen</div></div></div>
+</div>
+
+<div id="modal-pulsera" onclick="if(event.target===this)cerrarPulsera()">
+  <div class="pulsera-wrap">
+    <button class="pulsera-close" onclick="cerrarPulsera()">✕</button>
+    <div class="pulsera-title" id="pulsera-titulo">Pulsera de ritmos</div>
+    <div class="pulsera-body" id="pulsera-body"></div>
+  </div>
 </div>
 
 <script>
@@ -539,13 +547,5 @@ var intervaloNotificaciones=null;
 function iniciarNotificaciones(){activarNotificaciones();if(intervaloNotificaciones)clearInterval(intervaloNotificaciones);intervaloNotificaciones=setInterval(revisarPuntosProximos,30000);actualizarBotonNotificaciones();}
 
 (function(){idiomaActual=localStorage.getItem('marathon_lang')||'de';setTimeout(actualizarIdiomaInterfaz,100);rL();})();
-</script>
-<div id="modal-pulsera" onclick="if(event.target===this)cerrarPulsera()">
-  <div class="pulsera-wrap">
-    <button class="pulsera-close" onclick="cerrarPulsera()">✕</button>
-    <div class="pulsera-title" id="pulsera-titulo">Pulsera de ritmos</div>
-    <div class="pulsera-body" id="pulsera-body"></div>
-  </div>
-</div>
-</body>
+</script></body>
 </html>
