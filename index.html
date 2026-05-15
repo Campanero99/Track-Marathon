@@ -495,8 +495,10 @@ let hayaCambios=false;
 function marcarCambio(){hayaCambios=true;}
 function cerrarPulsera(){document.getElementById('modal-pulsera').classList.remove('open');}
 function mostrarPulsera(){
+  console.log('mostrarPulsera llamado');
   const ms=getMarcaSecs();
-  if(!ms){alert(t('ficha.pulseraNoMarca')||'Introduce primero un tiempo objetivo.');return;}
+  console.log('ms=', ms);
+  if(!ms){alert('Introduce primero un tiempo objetivo.');return;}
   const KMS=[1,5,10,15,21.1,25,30,35,40,42.195];
   const labels=['1 km','5 km','10 km','15 km','21,1 km','25 km','30 km','35 km','40 km','42,2 km'];
   const ritmo=ms/KM;
@@ -511,7 +513,10 @@ function mostrarPulsera(){
     const time=h>0?h+':'+pad(m)+':'+pad(s):pad(m)+':'+pad(s);
     return '<div class="pulsera-row"><span class="pulsera-km">'+labels[i]+'</span><span class="pulsera-time">'+time+'</span></div>';
   }).join('');
-  document.getElementById('modal-pulsera').classList.add('open');
+  var modal=document.getElementById('modal-pulsera');
+  console.log('modal=', modal);
+  modal.classList.add('open');
+  console.log('modal classes=', modal.className);
 }
 function ocultarAviso(){hayaCambios=false;}
 function intentarSalir(destino){
