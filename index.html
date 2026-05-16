@@ -187,7 +187,7 @@
 <div style="margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:6px"><label id="ficha-ritmo-label" style="text-align:center;width:100%">Berechnetes Tempo/km</label><input type="text" id="f-ritmo" readonly placeholder="—" style="text-align:center"></div>
 <div class="row2" style="margin-top:12px"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><label id="ficha-oficial-label" style="text-align:center;width:100%">Offizielle Startzeit</label><input type="time" id="f-salida-oficial" step="1" style="text-align:center"></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><label id="ficha-personal-label" style="text-align:center;width:100%">Persönliche Startzeit (Chip)</label><input type="time" id="f-salida-personal" step="1" oninput="syncSalida()" style="text-align:center"></div></div><div id="diferencia-salida" class="alert alert-info" style="display:none"></div></div>
   <div class="card"><div class="card-title">📍 <span id="ficha-puntos">Treffpunkte</span></div><p class="text2" style="margin-bottom:12px" id="ficha-puntos-desc">KM und Straßenname, wo du den Läufer siehst. Wird automatisch sortiert.</p><div id="puntos-container"></div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-outline btn-sm" onclick="addPunto()" id="ficha-add">+ Punkt hinzufügen</button><button class="btn btn-danger btn-sm" onclick="limpiarPuntos()" id="ficha-delete">✕ Alle löschen</button></div></div>
-  <div style="display:flex;gap:10px"><button class="btn btn-primary" style="flex:1" onclick="guardarCorreder()" id="ficha-save">💾 Läufer speichern</button><button class="btn btn-outline" onclick="intentarSalir('lista')" id="ficha-cancel">Abbrechen</button></div>
+  <div style="display:flex;gap:10px"><button class="btn btn-primary" style="flex:1" onclick="guardarCorreder()" id="ficha-save">💾 Läufer speichern</button><button class="btn btn-outline" onclick="intentarSalir('lista')" id="ficha-cancel"></button></div>
 </div>
 
 <div id="page-seguimiento" class="page">
@@ -453,7 +453,10 @@ function nuevoCorreder(){
   setMarca('');document.getElementById('f-sexo').value='';
   document.getElementById('diferencia-salida').style.display='none';
   document.getElementById('ficha-titulo').textContent=t('ficha.newTitle');
-  pt=[];buildCityGrid();rPF();showPage('ficha');ocultarAviso();setTimeout(activarDetectorCambios,100);
+  pt=[];buildCityGrid();rPF();showPage('ficha');ocultarAviso();
+  if(document.getElementById('ficha-cancel'))document.getElementById('ficha-cancel').textContent=t('ficha.cancel');
+  if(document.getElementById('ficha-save'))document.getElementById('ficha-save').textContent=t('ficha.save');
+  setTimeout(activarDetectorCambios,100);
 
   // Activar parpadeo en el texto de guardar
   var el = document.getElementById('ficha-sub');
@@ -464,7 +467,10 @@ function nuevoCorreder(){
     }, 2500); // 3 parpadeos de 0.8s = 2.4s, dejamos 2.5s
   }
 }
-function eC(i){ca=i;const c=C[i];document.getElementById('f-nombre').value=c.nombre||'';document.getElementById('f-dorsal').value=c.dorsal||'';document.getElementById('f-sexo').value=c.sexo||'';document.getElementById('f-carrera').value=c.carrera||'';setMarca(c.marca||'');document.getElementById('f-ritmo').value=c.ritmo||'';document.getElementById('f-salida-oficial').value=c.salidaOficial||'';document.getElementById('f-salida-personal').value=c.salidaPersonal||'';document.getElementById('diferencia-salida').style.display='none';document.getElementById('ficha-titulo').textContent=t('ficha.editTitle')+' - '+c.nombre;ciudadSel=c.ciudad||null;pt=(c.pasos||[]).map(p=>({km:p.km,calle:p.calle}));buildCityGrid();rPF();showPage('ficha');ocultarAviso();setTimeout(activarDetectorCambios,100);}
+function eC(i){ca=i;const c=C[i];document.getElementById('f-nombre').value=c.nombre||'';document.getElementById('f-dorsal').value=c.dorsal||'';document.getElementById('f-sexo').value=c.sexo||'';document.getElementById('f-carrera').value=c.carrera||'';setMarca(c.marca||'');document.getElementById('f-ritmo').value=c.ritmo||'';document.getElementById('f-salida-oficial').value=c.salidaOficial||'';document.getElementById('f-salida-personal').value=c.salidaPersonal||'';document.getElementById('diferencia-salida').style.display='none';document.getElementById('ficha-titulo').textContent=t('ficha.editTitle')+' - '+c.nombre;ciudadSel=c.ciudad||null;pt=(c.pasos||[]).map(p=>({km:p.km,calle:p.calle}));buildCityGrid();rPF();showPage('ficha');ocultarAviso();
+  if(document.getElementById('ficha-cancel'))document.getElementById('ficha-cancel').textContent=t('ficha.cancel');
+  if(document.getElementById('ficha-save'))document.getElementById('ficha-save').textContent=t('ficha.save');
+  setTimeout(activarDetectorCambios,100);}
 function rPF(){pt.sort((a,b)=>(parseFloat(a.km)||0)-(parseFloat(b.km)||0));document.getElementById('puntos-container').innerHTML=pt.map((p,i)=>'<div class="punto-row"><input type="number" placeholder="KM" value="'+p.km+'" step="0.001" onchange="pt['+i+'].km=parseFloat(this.value)||0;ordenarYRenderizar()"><input type="text" placeholder="Calle" value="'+(p.calle||'')+'" oninput="pt['+i+'].calle=this.value"><button class="btn btn-danger btn-sm" onclick="rP('+i+')">✕</button></div>').join('');}
 function ordenarYRenderizar(){pt.sort((a,b)=>(parseFloat(a.km)||0)-(parseFloat(b.km)||0));rPF();}
 function addPunto(){pt.push({km:'',calle:''});rPF();marcarCambio();}
