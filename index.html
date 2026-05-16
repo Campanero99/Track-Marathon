@@ -566,8 +566,11 @@ function resolverConfirm(val){
 }
 function intentarSalir(destino){
   var fichaActiva=document.getElementById('page-ficha')&&document.getElementById('page-ficha').classList.contains('active');
+  console.log('intentarSalir fichaActiva=',fichaActiva,'hayaCambios=',hayaCambios);
   if(fichaActiva&&hayaCambios){
+    console.log('mostrando confirm');
     confirmar(t('ficha.unsaved'),t('ficha.unsavedConfirm')).then(function(ok){
+      console.log('confirm resultado=',ok);
       if(!ok)return;
       ocultarAviso();
       if(typeof destino==='function')destino();else showPage(destino);
